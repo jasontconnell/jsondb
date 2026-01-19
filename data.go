@@ -19,6 +19,7 @@ type Database[T any] interface {
 	Update(f func(elem T) bool, elem T) bool
 	UpdateProperty(f func(elem T) bool, upd func(elem *T)) bool
 	Remove(f func(elem T) bool) (T, bool)
+	RemoveFilter(f func(elem T) bool) int
 	Clear() bool
 }
 
@@ -116,6 +117,18 @@ func (db *database[T]) Remove(f func(elem T) bool) (T, bool) {
 	item = db.data[idx]
 	db.data = append(db.data[:idx], db.data[idx+1:]...)
 	return item, true
+}
+
+func (db *database[T]) RemoveFilter(f func(elem T) bool) int {
+	removed := 0
+	for idx := len(db.data) - 1; idx >= 0; idx-- {
+		elem := db.data[idx]
+		if f(elem) {
+			db.data = append(db.data[:idx], db.data[idx+1:]...)
+			removed++
+		}
+	}
+	return removed
 }
 
 func (db *database[T]) Add(elem T) bool {
