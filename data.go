@@ -15,6 +15,7 @@ type Database[T any] interface {
 	AddOrUpdate(f func(elem T) bool, elem T) bool
 	AddIfUnique(f func(elem T) bool, elem T) bool
 	Update(f func(elem T) bool, elem T) bool
+	UpdateProperty(f func(elem T) bool, upd func(elem T) T) bool
 	Remove(f func(elem T) bool) (T, bool)
 }
 
@@ -125,6 +126,24 @@ func (db *database[T]) AddIfUnique(f func(elem T) bool, elem T) bool {
 
 	db.data = append(db.data, elem)
 	return true
+}
+
+func (db *database[T]) UpdateProperty(f func(elem T) bool, upd func(elem T) T) bool {
+	idx := -1
+	for i, d := range db.data {
+		if f(d) {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return false
+	}
+	elem := upd(db.data[idx])
+	db.data[idx] = elem
+	return true
+
 }
 
 func (db *database[T]) Update(f func(elem T) bool, elem T) bool {
