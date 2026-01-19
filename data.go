@@ -14,6 +14,7 @@ type Database[T any] interface {
 	Filter(f func(elem T) bool) []T
 	Exists(f func(elem T) bool) bool
 	Add(elem T) bool
+	AddAll(elems []T) bool
 	AddOrUpdate(f func(elem T) bool, elem T) bool
 	AddIfUnique(f func(elem T) bool, elem T) bool
 	Update(f func(elem T) bool, elem T) bool
@@ -133,6 +134,11 @@ func (db *database[T]) RemoveFilter(f func(elem T) bool) int {
 
 func (db *database[T]) Add(elem T) bool {
 	db.data = append(db.data, elem)
+	return true
+}
+
+func (db *database[T]) AddAll(elems []T) bool {
+	db.data = append(db.data, elems...)
 	return true
 }
 
