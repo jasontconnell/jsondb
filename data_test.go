@@ -76,3 +76,37 @@ func TestRemove(t *testing.T) {
 	}
 	t.Log("removed", elem)
 }
+
+func TestUpdateProperty(t *testing.T) {
+	db, err := NewDatabase[user]("users.json")
+	if err != nil {
+		t.Log(err)
+		t.Fail()
+	}
+
+	db.AddOrUpdate(func(u user) bool {
+		return u.Id == 21
+	}, user{Id: 21, Name: "Jason", Age: 47})
+
+	db.AddOrUpdate(func(u user) bool {
+		return u.Id == 22
+	}, user{Id: 22, Name: "Erin", Age: 43})
+
+	db.AddOrUpdate(func(u user) bool {
+		return u.Id == 100
+	}, user{Id: 100, Name: "Remove me", Age: 100})
+
+	db.UpdateProperty(func(u user) bool {
+		return u.Id == 21
+	}, func(u *user) {
+		u.Age = 46
+	})
+
+	u, found := db.FindFirst(func(u user) bool {
+		return u.Id == 21
+	})
+
+	if !found || u.Age != 46 {
+		t.Fail()
+	}
+}
