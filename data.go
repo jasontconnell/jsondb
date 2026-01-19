@@ -12,6 +12,7 @@ type Database[T any] interface {
 	FindFirst(f func(elem T) bool) (T, bool)
 	Filter(f func(elem T) bool) []T
 	Exists(f func(elem T) bool) bool
+	Add(elem T) bool
 	AddOrUpdate(f func(elem T) bool, elem T) bool
 	AddIfUnique(f func(elem T) bool, elem T) bool
 	Update(f func(elem T) bool, elem T) bool
@@ -112,6 +113,11 @@ func (db *database[T]) Remove(f func(elem T) bool) (T, bool) {
 	return item, true
 }
 
+func (db *database[T]) Add(elem T) bool {
+	db.data = append(db.data, elem)
+	return true
+}
+
 func (db *database[T]) AddIfUnique(f func(elem T) bool, elem T) bool {
 	idx := -1
 	for i, d := range db.data {
@@ -125,8 +131,7 @@ func (db *database[T]) AddIfUnique(f func(elem T) bool, elem T) bool {
 		return false
 	}
 
-	db.data = append(db.data, elem)
-	return true
+	return db.Add(elem)
 }
 
 func (db *database[T]) UpdateProperty(f func(elem T) bool, upd func(elem T) T) bool {
