@@ -10,6 +10,7 @@ type database[T any] struct {
 type Database[T any] interface {
 	Store() error
 	FindFirst(f func(elem T) bool) (T, bool)
+	All() []T
 	Filter(f func(elem T) bool) []T
 	Exists(f func(elem T) bool) bool
 	Add(elem T) bool
@@ -71,6 +72,10 @@ func (db *database[T]) FindFirst(f func(elem T) bool) (T, bool) {
 		return x, false
 	}
 	return db.data[idx], true
+}
+
+func (db *database[T]) All() []T {
+	return db.data
 }
 
 func (db *database[T]) Filter(f func(elem T) bool) []T {
