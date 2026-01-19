@@ -13,6 +13,8 @@ type Database[T any] interface {
 	Filter(f func(elem T) bool) []T
 	Exists(f func(elem T) bool) bool
 	AddOrUpdate(f func(elem T) bool, elem T) bool
+	AddIfUnique(f func(elem T) bool, elem T) bool
+	Update(f func(elem T) bool, elem T) bool
 	Remove(f func(elem T) bool) (T, bool)
 }
 
@@ -106,4 +108,37 @@ func (db *database[T]) Remove(f func(elem T) bool) (T, bool) {
 	item = db.data[idx]
 	db.data = append(db.data[:idx], db.data[idx+1:]...)
 	return item, true
+}
+
+func (db *database[T]) AddIfUnique(f func(elem T) bool, elem T) bool {
+	idx := -1
+	for i, d := range db.data {
+		if f(d) {
+			idx = i
+			break
+		}
+	}
+
+	if idx != -1 {
+		return false
+	}
+
+	db.data = append(db.data, elem)
+	return true
+}
+
+func (db *database[T]) Update(f func(elem T) bool, elem T) bool {
+	idx := -1
+	for i, d := range db.data {
+		if f(d) {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return false
+	}
+	db.data[idx] = elem
+	return true
 }
