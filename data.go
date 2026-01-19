@@ -17,6 +17,7 @@ type Database[T any] interface {
 	Update(f func(elem T) bool, elem T) bool
 	UpdateProperty(f func(elem T) bool, upd func(elem T) T) bool
 	Remove(f func(elem T) bool) (T, bool)
+	Clear() bool
 }
 
 func NewDatabase[T any](filename string) (Database[T], error) {
@@ -143,7 +144,6 @@ func (db *database[T]) UpdateProperty(f func(elem T) bool, upd func(elem T) T) b
 	elem := upd(db.data[idx])
 	db.data[idx] = elem
 	return true
-
 }
 
 func (db *database[T]) Update(f func(elem T) bool, elem T) bool {
@@ -159,5 +159,10 @@ func (db *database[T]) Update(f func(elem T) bool, elem T) bool {
 		return false
 	}
 	db.data[idx] = elem
+	return true
+}
+
+func (db *database[T]) Clear() bool {
+	db.data = []T{}
 	return true
 }
